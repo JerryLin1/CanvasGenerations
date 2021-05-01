@@ -9,7 +9,9 @@
     <link rel="stylesheet" href="index.css" />
   </head>
   <body>
-    <label for="fps" class="label">FPS:</label>
+    <label for="fps" class="label" title="Number of iterations per second."
+      >FPS:</label
+    >
     <input
       id="fps"
       type="number"
@@ -17,7 +19,9 @@
       min="1"
       oninput="this.value = Math.abs(this.value); AutoUpdateOptions()"
     />
-    <label for="size" class="label">Tile size:</label>
+    <label for="size" class="label" title="Size of each square tile in pixels."
+      >Tile size:</label
+    >
     <input
       id="size"
       type="number"
@@ -25,7 +29,12 @@
       min="1"
       oninput="this.value = Math.abs(this.value); AutoUpdateOptions()"
     />
-    <label for="colour" class="label">Colour:</label>
+    <label
+      for="colour"
+      class="label"
+      title="Whether colours should be enabled. Will increase performance if disabled."
+      >Colour:</label
+    >
     <input
       id="colour"
       type="checkbox"
@@ -40,14 +49,19 @@
 
     <button id="genbtn" onclick="Generate()">Generate</button>
     <label for="row" class="label">Rows:</label>
-    <input id="row" type="number" value="31" min="5"/>
+    <input id="row" type="number" value="31" min="5" />
     <label for="col" class="label">Columns:</label>
-    <input id="col" type="number" value="31" min="5"/>
+    <input id="col" type="number" value="31" min="5" />
     <br />
     <label for="genType">Generation type:</label>
     <select id="genType">
       <option value="caveCA">Cellular automata - Cave</option>
       <option value="binaryTree">Binary Tree Maze</option>
     </select>
+    <br />
+    <div id="desc">
+      This is a collection of various randomly generated mazes or other
+      interesting shapes. Pick a generation type and press Generate to start!
+    </div>
   </body>
 </html>
