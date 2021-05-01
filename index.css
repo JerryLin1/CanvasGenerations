@@ -1,0 +1,14 @@
+* {
+    margin-bottom: 10px;
+}
+body {
+    text-align: center;
+}
+#sCan {
+    display: block;
+    border: solid 1px;
+    margin: auto;
+}
+input {
+    width: 3em;
+}

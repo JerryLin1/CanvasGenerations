@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="index.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Maze Generator</title>
+    <link rel="stylesheet" href="index.css" />
+  </head>
+  <body>
+    <label for="fps" class="label">FPS:</label>
+    <input
+      id="fps"
+      type="number"
+      value="1"
+      min="0"
+      oninput="this.value = Math.abs(this.value); AutoUpdateOptions()"
+    />
+    <label for="size" class="label">Tile size:</label>
+    <input
+      id="size"
+      type="number"
+      value="10"
+      min="1"
+      oninput="this.value = Math.abs(this.value); AutoUpdateOptions()"
+      autocomplete="off"
+    />
+    <canvas id="sCan" width="60" height="60"></canvas>
+    <button id="genbtn" onclick="Generate()">Generate</button>
+    <label for="row" class="label">Rows:</label>
+    <input id="row" type="number" value="31" min="5" autocomplete="off"/>
+    <label for="col" class="label">Columns:</label>
+    <input id="col" type="number" value="31" min="5" autocomplete="off" />
+    <br />
+    <label for="genType">Generation type:</label>
+    <select id="genType">
+      <option value="caveCA">Cellular automata - Cave</option>
+      <option value="binaryTree">Binary Tree Maze</option>
+    </select>
+  </body>
+</html>
