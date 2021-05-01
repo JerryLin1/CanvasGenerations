@@ -1,13 +1,36 @@
 * {
+    margin: 0;
+    padding: 0;
+    box-sizing: content-box;
     margin-bottom: 10px;
+}
+#colour {
+    width: 13px;
 }
 body {
     text-align: center;
 }
-#sCan {
+#canWrapper {
+    position: relative;
+    height: 60px;
+    width: 60px;
     display: block;
-    border: solid 1px;
-    margin: auto;
+    border: solid 2px;
+    margin: 0 auto;
+}
+canvas {
+    position: absolute;
+    left: 0;
+    top: 0;
+    /* border: solid 2px red; */
+}
+#mCan {
+    z-index: 0;
+}
+
+#cCan {
+    background-color: transparent;
+    z-index: 1;
 }
 input {
     width: 3em;

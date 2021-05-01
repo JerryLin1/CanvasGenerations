@@ -26,10 +26,22 @@
       oninput="this.value = Math.abs(this.value); AutoUpdateOptions()"
       autocomplete="off"
     />
-    <canvas id="sCan" width="60" height="60"></canvas>
+    <label for="colour" class="label">Colour:</label>
+    <input
+      id="colour"
+      type="checkbox"
+      value="true"
+      oninput="AutoUpdateOptions()"
+    />
+
+    <div id="canWrapper">
+      <canvas id="mCan"></canvas>
+      <canvas id="cCan"></canvas>
+    </div>
+
     <button id="genbtn" onclick="Generate()">Generate</button>
     <label for="row" class="label">Rows:</label>
-    <input id="row" type="number" value="31" min="5" autocomplete="off"/>
+    <input id="row" type="number" value="31" min="5" autocomplete="off" />
     <label for="col" class="label">Columns:</label>
     <input id="col" type="number" value="31" min="5" autocomplete="off" />
     <br />

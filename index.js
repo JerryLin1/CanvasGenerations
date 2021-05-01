@@ -1,6 +1,11 @@
 var tileSize = 10;
-var c;
-var ctx;
+
+var cW;
+var mCan;
+var mCtx;
+var cCan;
+var cCtx;
+
 var col;
 var row;
 var fps = 1;
@@ -19,6 +24,7 @@ var inpRow;
 var inpSize
 var inpGenType;
 var inpFps;
+var inpColour;
 
 const smiley = [
     [0, 0, 0, 0, 0, 0],
@@ -35,8 +41,13 @@ const colorBlank = "rgba(0, 0, 0, 0)"
 const colorHistory = "rgba(2, 64, 150, 1)"
 const colorStart = "rgba(252, 186, 3, 1)";
 window.onload = function Init() {
-    c = document.getElementById("sCan");
-    ctx = c.getContext("2d");
+    mCan = document.getElementById("mCan");
+    mCtx = mCan.getContext("2d");
+    cCan = document.getElementById("cCan");
+    cCtx = cCan.getContext("2d");
+    cW = document.getElementById("canWrapper");
+
+    // Runs at 60fps (cannot be edited), but actual iterations per second can be adjusted (i still call fps)
     setTimeout(Update, 1000 / 60);
     setTimeout(IterateMethod, 1000 / fps);
     inpCol = document.getElementById("col");
@@ -44,19 +55,20 @@ window.onload = function Init() {
     inpSize = document.getElementById("size")
     inpGenType = document.getElementById("genType");
     inpFps = document.getElementById("fps");
+    inpColour = document.getElementById("colour");
 
     col = smiley.length;
     row = smiley[0].length;
 
-    Draw();
+    RedrawAll();
 }
 function Generate() {
-    GenerateOptions();
+    UpdateGenOptions();
     UpdateOptions();
     StartMethod();
-    Draw();
+    RedrawAll();
 }
-function Draw() {
+function RedrawAll() {
     for (let r = 0; r < row; r++) {
         for (let c = 0; c < col; c++) {
             let t = arr[r][c];
@@ -64,16 +76,16 @@ function Draw() {
                 case 0:
                     break;
                 case 1:
-                    ctx.fillStyle = "black";
+                    mCtx.fillStyle = "black";
                     if (cgen === gen.binaryTree && r === bar && c === bac) {
-                        ctx.fillStyle = "red";
+                        mCtx.fillStyle = "red";
                     }
-                    ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                    mCtx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
                     break;
             }
             if (arrC != null && useColor === true) {
-                ctx.fillStyle = arrC[r][c];
-                ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                mCtx.fillStyle = arrC[r][c];
+                mCtx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
                 // if history blue color fade it away
                 if (ChangeTransparency(arrC[r][c], 1) === colorHistory) {
                     arrC[r][c] = DecreaseTransparency(arrC[r][c]);
@@ -81,12 +93,14 @@ function Draw() {
             }
         }
     }
+}
+function DrawColours() {
 
 }
 
 function Update() {
-    ctx.clearRect(0, 0, c.width, c.height);
-    Draw();
+    mCtx.clearRect(0, 0, mCan.width, mCan.height);
+    RedrawAll();
 
     setTimeout(Update, 1000 / 60);
 }
@@ -227,13 +241,21 @@ function AutoUpdateOptions() {
         UpdateOptions();
     }
 }
+// normal UpdateOptions is called manually
 function UpdateOptions() {
     tileSize = parseInt(inpSize.value);
 
-    c.width = col * tileSize;
-    c.height = row * tileSize;
+    let tcols = col * tileSize;
+    let trows = row * tileSize
+    cW.style.width = tcols + "px";
+    cW.style.height = trows + "px";
+    mCan.width = tcols;
+    mCan.height = trows;
+    cCan.width = tcols;
+    mCan.height = trows;
 
     fps = parseInt(inpFps.value);
+    useColor = inpColour.checked;
 }
 function IsPosValid(j, k) {
     if (j >= 0 && j < row && k >= 0 && k < col) {
@@ -241,7 +263,7 @@ function IsPosValid(j, k) {
     }
     else return false;
 }
-function GenerateOptions() {
+function UpdateGenOptions() {
     col = parseInt(inpCol.value);
     row = parseInt(inpRow.value);
     GetGenType();
