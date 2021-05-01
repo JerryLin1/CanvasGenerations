@@ -37,6 +37,20 @@
     >
     <input
       id="colour"
+      class="checkbox"
+      type="checkbox"
+      checked="true"
+      oninput="AutoUpdateOptions()"
+    />
+    <label
+      for="process"
+      class="label"
+      title="Whether the generation process should be shown or not. Generation will be much faster if disabled."
+      >Show Process:</label
+    >
+    <input
+      id="process"
+      class="checkbox"
       type="checkbox"
       checked="true"
       oninput="AutoUpdateOptions()"

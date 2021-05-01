@@ -9,9 +9,10 @@ var cCtx;
 var col;
 var row;
 var afps = 60;
-var fps = 1;
+var fps = 60;
 var randDens = 0.50;
 var useColor = true;
+var showProcess = true;
 
 const gen = Object.freeze({
     none: 0,
@@ -28,6 +29,7 @@ var inpSize
 var inpGenType;
 var inpFps;
 var inpColour;
+var inpShowProcess;
 
 const smiley = [
     [0, 0, 0, 0, 0, 0],
@@ -60,6 +62,7 @@ window.onload = function Init() {
     inpGenType = document.getElementById("genType");
     inpFps = document.getElementById("fps");
     inpColour = document.getElementById("colour");
+    inpShowProcess = document.getElementById("process");
 
     col = smiley.length;
     row = smiley[0].length;
@@ -81,8 +84,10 @@ function RedrawAll() {
     }
 }
 function RedrawTile(r, c) {
-    mCtx.clearRect(c * tileSize, r * tileSize, tileSize, tileSize);
-    DrawTile(r, c);
+    if (showProcess) {
+        mCtx.clearRect(c * tileSize, r * tileSize, tileSize, tileSize);
+        DrawTile(r, c);
+    }
 }
 function DrawTile(r, c) {
     let t = arr[r][c];
@@ -100,27 +105,29 @@ function DrawTile(r, c) {
     }
 }
 function DrawColors() {
-    cCtx.clearRect(0, 0, cCan.width, cCan.height);
-    for (let [key, value] of Object.entries(clrs)) {
-        let [r, c] = StringToPair(key);
-        let clr = value;
+    if (useColor && showProcess) {
+        cCtx.clearRect(0, 0, cCan.width, cCan.height);
+        for (let [key, value] of Object.entries(clrs)) {
+            let [r, c] = StringToPair(key);
+            let clr = value;
 
-        cCtx.fillStyle = clr;
-        cCtx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+            cCtx.fillStyle = clr;
+            cCtx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
 
-        // if history blue color fade it away
-        if (ChangeTransparency(clr, 1) === clrHistory) {
-            clr = DecreaseTransparency(clr)
-            SetColor(r, c, clr);
-            if (GetTransparency(clr) <= 0) {
-                delete clrs[[r, c]];
+            // if history blue color fade it away
+            if (ChangeTransparency(clr, 1) === clrHistory) {
+                clr = DecreaseTransparency(clr)
+                SetColor(r, c, clr);
+                if (GetTransparency(clr) <= 0) {
+                    delete clrs[[r, c]];
+                }
             }
         }
     }
 }
 
 function Update() {
-    if (useColor) DrawColors();
+    DrawColors();
 
     setTimeout(Update, 1000 / afps);
 }
@@ -138,11 +145,12 @@ function StartMethod() {
             StartDFS();
             break;
     }
-    RedrawAll();
+    if (showProcess) RedrawAll();
 }
 function IterateMethod() {
     switch (cgen) {
         case gen.none:
+            RedrawAll();
             break;
         case gen.CaveCA:
             IterateCaveCA();
@@ -154,7 +162,8 @@ function IterateMethod() {
             IterateDFS();
             break;
     }
-    setTimeout(IterateMethod, 1000 / fps);
+    if ((!showProcess && cgen != gen.none)) { IterateMethod(); }
+    else { setTimeout(IterateMethod, 1000 / fps); }
 }
 function GetGenType() {
     let t = inpGenType.value;
@@ -174,7 +183,8 @@ function StartCaveCA() {
     GenerateRandom();
 }
 function IterateCaveCA() {
-    RedrawAll();
+    if (showProcess) RedrawAll();
+    var changeCount = 0;
     for (let r = 0; r < row; r++) {
         for (let c = 0; c < col; c++) {
             var wCount = 0;
@@ -192,16 +202,21 @@ function IterateCaveCA() {
                     }
                 }
             }
-            if (wCount > eCount) {
+            if (wCount > eCount && arr[r][c] != 1) {
                 arr[r][c] = 1;
+                changeCount++;
             }
-            else if (wCount < eCount) {
+            else if (wCount < eCount && arr[r][c] != 0) {
                 arr[r][c] = 0;
+                changeCount;
             }
             else {
 
             }
         }
+    }
+    if (changeCount === 0) {
+        cgen = gen.none;
     }
 }
 var bar = 1;
@@ -361,6 +376,7 @@ function UpdateOptions() {
 
     fps = parseInt(inpFps.value);
     useColor = inpColour.checked;
+    showProcess = inpShowProcess.checked;
 }
 function IsPosValid(j, k) {
     if (j >= 0 && j < row && k >= 0 && k < col) {
@@ -390,7 +406,7 @@ function SetCell(r, c, int) {
     arr[r][c] = int;
 }
 function SetColor(r, c, color) {
-    if (useColor) clrs[[r, c]] = color;
+    if (useColor && showProcess) clrs[[r, c]] = color;
 }
 function StringToPair(pair) {
     return pair.split(",");

@@ -4,7 +4,7 @@
     box-sizing: content-box;
     margin-bottom: 10px;
 }
-#colour {
+.checkbox {
     width: 13px;
 }
 body {
