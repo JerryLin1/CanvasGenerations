@@ -36,11 +36,12 @@ const smiley = [
     [0, 0, 0, 0, 0, 0]
 ];
 var arr = smiley;
-var clrs = [];
+var clrs = {};
 
-const colorBlank = "rgba(0, 0, 0, 0)"
-const colorHistory = "rgba(2, 64, 150, 1)"
-const colorStart = "rgba(252, 186, 3, 1)";
+const clrBlank = "rgba(0, 0, 0, 0)"
+const clrHistory = "rgba(2, 64, 150, 1)"
+const clrStart = "rgba(252, 186, 3, 1)";
+const clrHilite = "rgba(207, 0, 0, 1)";
 window.onload = function Init() {
     mCan = document.getElementById("mCan");
     mCtx = mCan.getContext("2d");
@@ -97,22 +98,19 @@ function DrawTile(r, c) {
 }
 function DrawColors() {
     cCtx.clearRect(0, 0, cCan.width, cCan.height);
-    for (let i = clrs.length - 1; i >= 0; i--) {
-        let r = clrs[i].key[0];
-        let c = clrs[i].key[1];
-        let clr = clrs[i].value;
-        if (r == 1 && c == 2) console.log(clr);
+    for (let [key, value] of Object.entries(clrs)) {
+        let [r, c] = StringToPair(key);
+        let clr = value;
 
         cCtx.fillStyle = clr;
         cCtx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
 
         // if history blue color fade it away
-        if (ChangeTransparency(clr, 1) === colorHistory) {
+        if (ChangeTransparency(clr, 1) === clrHistory) {
             clr = DecreaseTransparency(clr)
             SetColor(r, c, clr);
-            clrs.splice(i, 1)
             if (GetTransparency(clr) <= 0) {
-                clrs.splice(i, 1);
+                delete clrs[[r, c]];
             }
         }
     }
@@ -190,7 +188,7 @@ function StartBinaryTree() {
     arr[1][1] = 0;
     bar = 1;
     bac = 1;
-    SetColor(bar, bac, colorStart);
+    SetColor(bar, bac, clrStart);
 }
 function IterateBinaryTree() {
     let n = new Array();
@@ -207,8 +205,8 @@ function IterateBinaryTree() {
         RedrawTile(n[0][0], n[0][1]);
         RedrawTile(bar, bac);
 
-        SetColor(n[0][0], n[0][1], colorHistory);
-        SetColor(bar, bac, colorHistory);
+        SetColor(n[0][0], n[0][1], clrHistory);
+        SetColor(bar, bac, clrHistory);
     }
     else if (n.length === 2) {
         let rand = GetRndInt(0, 2);
@@ -218,8 +216,8 @@ function IterateBinaryTree() {
         RedrawTile(n[rand][0], n[rand][1]);
         RedrawTile(bar, bac);
 
-        SetColor(n[rand][0], n[rand][1], colorHistory);
-        SetColor(bar, bac, colorHistory);
+        SetColor(n[rand][0], n[rand][1], clrHistory);
+        SetColor(bar, bac, clrHistory);
     }
     else {
         // nothing
@@ -228,7 +226,7 @@ function IterateBinaryTree() {
     if (bac > col - 1) {
         bar += 2;
         if (bar > row - 1) {
-            SetColor(bar - 2, bac - 2, colorStart);
+            SetColor(bar - 2, bac - 2, clrStart);
             cgen = gen.none;
         }
         bac = 1;
@@ -311,13 +309,13 @@ function NewArr() {
     ResetArrC();
 }
 function ResetArrC() {
-    clrs = [];
+    clrs = {};
 }
 function SetColor(r, c, color) {
-    clrs.push({
-        key: [r, c],
-        value: color
-    });
+    clrs[[r, c]] = color;
+}
+function StringToPair(pair) {
+    return pair.split(",");
 }
 function GetRndInt(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
 function DecreaseTransparency(rgba) {
