@@ -156,6 +156,20 @@ function IterateMethod() {
     }
     setTimeout(IterateMethod, 1000 / fps);
 }
+function GetGenType() {
+    let t = inpGenType.value;
+    switch (t) {
+        case "caveCA":
+            cgen = gen.CaveCA;
+            break;
+        case "binaryTree":
+            cgen = gen.binaryTree;
+            break;
+        case "dfs":
+            cgen = gen.dfs;
+            break;
+    }
+}
 function StartCaveCA() {
     GenerateRandom();
 }
@@ -363,20 +377,6 @@ function UpdateGenOptions() {
     if (mazes.includes(cgen)) {
         if (col % 2 === 0) col++;
         if (row % 2 === 0) row++
-    }
-}
-function GetGenType() {
-    let t = inpGenType.value;
-    switch (t) {
-        case "caveCA":
-            cgen = gen.CaveCA;
-            break;
-        case "binaryTree":
-            cgen = gen.binaryTree;
-            break;
-        case "dfs":
-            cgen = gen.dfs;
-            break;
     }
 }
 function NewArr() {
