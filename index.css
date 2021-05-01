@@ -8,6 +8,7 @@
     width: 13px;
 }
 body {
+    padding-top: 20px;
     text-align: center;
 }
 #canWrapper {
