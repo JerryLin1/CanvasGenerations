@@ -17,7 +17,9 @@ const gen = Object.freeze({
     none: 0,
     CaveCA: 1,
     binaryTree: 2,
+    dfs: 3
 })
+const mazes = Object.freeze([gen.binaryTree, gen.dfs]);
 var cgen = gen.none;
 
 var inpCol;
@@ -41,7 +43,7 @@ var clrs = {};
 const clrBlank = "rgba(0, 0, 0, 0)"
 const clrHistory = "rgba(2, 64, 150, 1)"
 const clrStart = "rgba(252, 186, 3, 1)";
-const clrHilite = "rgba(207, 0, 0, 1)";
+const clrImp = "rgba(207, 0, 0, 1)";
 window.onload = function Init() {
     mCan = document.getElementById("mCan");
     mCtx = mCan.getContext("2d");
@@ -89,9 +91,10 @@ function DrawTile(r, c) {
             break;
         case 1:
             mCtx.fillStyle = "black";
-            if (cgen === gen.binaryTree && r === bar && c === bac) {
-                mCtx.fillStyle = "red";
-            }
+            mCtx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+            break;
+        case 2:
+            mCtx.fillStyle = clrStart;
             mCtx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
             break;
     }
@@ -131,6 +134,9 @@ function StartMethod() {
         case gen.binaryTree:
             StartBinaryTree();
             break;
+        case gen.dfs:
+            StartDFS();
+            break;
     }
     RedrawAll();
 }
@@ -143,6 +149,9 @@ function IterateMethod() {
             break;
         case gen.binaryTree:
             IterateBinaryTree();
+            break;
+        case gen.dfs:
+            IterateDFS();
             break;
     }
     setTimeout(IterateMethod, 1000 / fps);
@@ -185,17 +194,16 @@ var bar = 1;
 var bac = 1;
 function StartBinaryTree() {
     GenerateFilled();
-    arr[1][1] = 0;
     bar = 1;
     bac = 1;
-    SetColor(bar, bac, clrStart);
+    SetCell(bar, bac, 2);
 }
 function IterateBinaryTree() {
     let n = new Array();
-    if (IsPosValid(bar - 2, bac) && arr[bar - 2][bac] === 0) {
+    if (IsPosValid(bar - 2, bac) && arr[bar - 2][bac] != 1) {
         n.push([bar - 1, bac]);
     }
-    if (IsPosValid(bar, bac - 2) && arr[bar][bac - 2] === 0) {
+    if (IsPosValid(bar, bac - 2) && arr[bar][bac - 2] != 1) {
         n.push([bar, bac - 1]);
     }
     if (n.length === 1) {
@@ -226,11 +234,67 @@ function IterateBinaryTree() {
     if (bac > col - 1) {
         bar += 2;
         if (bar > row - 1) {
-            SetColor(bar - 2, bac - 2, clrStart);
+            SetCell(bar - 2, bac - 2, 2);
             cgen = gen.none;
+            RedrawAll();
         }
         bac = 1;
     }
+}
+var dfsStack = [];
+var dfsVisited = [];
+function StartDFS() {
+    dfsStack = [[1, 1]];
+    dfsVisited = [];
+    dfsVisited.push(dfsStack[0]);
+    GenerateFilled();
+    SetCell(dfsStack[0][0], dfsStack[0][1], 2);
+}
+function IterateDFS() {
+    let cell = dfsStack.pop();
+    let [r, c] = cell;
+    if (r === row - 2 && c === col - 2) {
+        SetCell(r, c, 2);
+    }
+    SetColor(r, c, clrHistory);
+    let n = new Array();
+    if (IsPosValid(r + 2, c) && !IsArrayInArray(dfsVisited, [r + 2, c])) {
+        n.push([r + 2, c]);
+    }
+    if (IsPosValid(r - 2, c) && !IsArrayInArray(dfsVisited, [r - 2, c])) {
+        n.push([r - 2, c]);
+    }
+    if (IsPosValid(r, c + 2) && !IsArrayInArray(dfsVisited, [r, c + 2])) {
+        n.push([r, c + 2]);
+    }
+    if (IsPosValid(r, c - 2) && !IsArrayInArray(dfsVisited, [r, c - 2])) {
+        n.push([r, c - 2]);
+    }
+    // Visit and connect all neighbour cells
+    for (let i = 0; i < n.length; i++) {
+        dfsVisited.push(n[i]);
+        let ir = n[i][0];
+        let ic = n[i][1];
+        SetCell(ir, ic, 0);
+        SetCell(ir + (r - ir) / 2, ic + (c - ic) / 2, 0);
+
+        SetColor(ir, ic, clrHistory);
+        SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
+    }
+    // Push neighbour cells to stack randomly
+    let ilength = n.length;
+    for (let i = 0; i < ilength; i++) {
+        let rand = GetRndInt(0, n.length);
+        dfsStack.push(n[rand]);
+        n.splice(rand, 1);
+    }
+
+
+    if (dfsStack.length === 0) {
+        cgen = gen.none;
+    }
+
+    RedrawAll();
 }
 function GenerateRandom() {
     NewArr();
@@ -295,9 +359,9 @@ function UpdateGenOptions() {
     row = parseInt(inpRow.value);
 
     // Mazes should have odd number of columns and rows
-    if (cgen == gen.binaryTree) {
-        if (col%2===0) col++;
-        if (row%2===0) row++
+    if (mazes.includes(cgen)) {
+        if (col % 2 === 0) col++;
+        if (row % 2 === 0) row++
     }
 }
 function GetGenType() {
@@ -309,6 +373,9 @@ function GetGenType() {
         case "binaryTree":
             cgen = gen.binaryTree;
             break;
+        case "dfs":
+            cgen = gen.dfs;
+            break;
     }
 }
 function NewArr() {
@@ -318,8 +385,11 @@ function NewArr() {
 function ResetArrC() {
     clrs = {};
 }
+function SetCell(r, c, int) {
+    arr[r][c] = int;
+}
 function SetColor(r, c, color) {
-    clrs[[r, c]] = color;
+    if (useColor) clrs[[r, c]] = color;
 }
 function StringToPair(pair) {
     return pair.split(",");
@@ -335,4 +405,14 @@ function GetTransparency(rgba) {
 }
 function ChangeTransparency(rgba, transparency) {
     return rgba.replace(/[^,]+(?=\))/, " " + transparency);
+}
+
+//https://stackoverflow.com/a/41661388/8280780
+function IsArrayInArray(arr, item) {
+    var item_as_string = JSON.stringify(item);
+
+    var contains = arr.some(function (ele) {
+        return JSON.stringify(ele) === item_as_string;
+    });
+    return contains;
 }
