@@ -265,19 +265,20 @@ function AutoUpdateOptions() {
     if (arr != smiley) {
         UpdateOptions();
     }
+    RedrawAll();
 }
 // normal UpdateOptions is called manually
 function UpdateOptions() {
     tileSize = parseInt(inpSize.value);
 
-    let tcols = col * tileSize;
-    let trows = row * tileSize
-    cW.style.width = tcols + "px";
-    cW.style.height = trows + "px";
-    mCan.width = tcols;
-    mCan.height = trows;
-    cCan.width = tcols;
-    cCan.height = trows;
+    let w = col * tileSize;
+    let h = row * tileSize
+    cW.style.width = w + "px";
+    cW.style.height = h + "px";
+    mCan.width = w;
+    mCan.height = h;
+    cCan.width = w;
+    cCan.height = h;
 
     fps = parseInt(inpFps.value);
     useColor = inpColour.checked;
@@ -289,9 +290,15 @@ function IsPosValid(j, k) {
     else return false;
 }
 function UpdateGenOptions() {
+    GetGenType();
     col = parseInt(inpCol.value);
     row = parseInt(inpRow.value);
-    GetGenType();
+
+    // Mazes should have odd number of columns and rows
+    if (cgen == gen.binaryTree) {
+        if (col%2===0) col++;
+        if (row%2===0) row++
+    }
 }
 function GetGenType() {
     let t = inpGenType.value;
