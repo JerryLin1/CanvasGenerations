@@ -278,6 +278,9 @@ function IterateDFS() {
         SetCell(ir, ic, 0);
         SetCell(ir + (r - ir) / 2, ic + (c - ic) / 2, 0);
 
+        RedrawTile(ir, ic);
+        RedrawTile(ir + (r - ir) / 2, ic + (c - ic) / 2);
+
         SetColor(ir, ic, clrHistory);
         SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
     }
@@ -293,8 +296,6 @@ function IterateDFS() {
     if (dfsStack.length === 0) {
         cgen = gen.none;
     }
-
-    RedrawAll();
 }
 function GenerateRandom() {
     NewArr();
