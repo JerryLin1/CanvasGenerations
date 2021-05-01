@@ -73,19 +73,26 @@ function RedrawAll() {
     mCtx.clearRect(0, 0, mCan.width, mCan.height);
     for (let r = 0; r < row; r++) {
         for (let c = 0; c < col; c++) {
-            let t = arr[r][c];
-            switch (t) {
-                case 0:
-                    break;
-                case 1:
-                    mCtx.fillStyle = "black";
-                    if (cgen === gen.binaryTree && r === bar && c === bac) {
-                        mCtx.fillStyle = "red";
-                    }
-                    mCtx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
-                    break;
-            }
+            DrawTile(r, c);
         }
+    }
+}
+function RedrawTile(r, c) {
+    mCtx.clearRect(c * tileSize, r * tileSize, tileSize, tileSize);
+    DrawTile(r, c);
+}
+function DrawTile(r, c) {
+    let t = arr[r][c];
+    switch (t) {
+        case 0:
+            break;
+        case 1:
+            mCtx.fillStyle = "black";
+            if (cgen === gen.binaryTree && r === bar && c === bac) {
+                mCtx.fillStyle = "red";
+            }
+            mCtx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+            break;
     }
 }
 function DrawColors() {
@@ -112,8 +119,6 @@ function DrawColors() {
 }
 
 function Update() {
-    //move draw behaviour to iterate
-    RedrawAll();
     if (useColor) DrawColors();
 
     setTimeout(Update, 1000 / afps);
@@ -129,6 +134,7 @@ function StartMethod() {
             StartBinaryTree();
             break;
     }
+    RedrawAll();
 }
 function IterateMethod() {
     switch (cgen) {
@@ -147,6 +153,7 @@ function StartCaveCA() {
     GenerateRandom();
 }
 function IterateCaveCA() {
+    RedrawAll();
     for (let r = 0; r < row; r++) {
         for (let c = 0; c < col; c++) {
             var wCount = 0;
@@ -197,6 +204,9 @@ function IterateBinaryTree() {
         arr[n[0][0]][n[0][1]] = 0;
         arr[bar][bac] = 0;
 
+        RedrawTile(n[0][0], n[0][1]);
+        RedrawTile(bar, bac);
+
         SetColor(n[0][0], n[0][1], colorHistory);
         SetColor(bar, bac, colorHistory);
     }
@@ -204,6 +214,9 @@ function IterateBinaryTree() {
         let rand = GetRndInt(0, 2);
         arr[n[rand][0]][n[rand][1]] = 0;
         arr[bar][bac] = 0;
+
+        RedrawTile(n[rand][0], n[rand][1]);
+        RedrawTile(bar, bac);
 
         SetColor(n[rand][0], n[rand][1], colorHistory);
         SetColor(bar, bac, colorHistory);
@@ -308,7 +321,7 @@ function SetColor(r, c, color) {
 }
 function GetRndInt(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
 function DecreaseTransparency(rgba) {
-    let nt = GetTransparency(rgba) - 0.1;
+    let nt = GetTransparency(rgba) - 0.05;
     if (nt < 0) nt = 0;
     return ChangeTransparency(rgba, nt);
 }
