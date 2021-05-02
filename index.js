@@ -357,6 +357,7 @@ function IterateKruskals() {
     let t = GetRandomKey(kruskalsEdges);
     let r = parseInt(t[0]);
     let c = parseInt(t[1]);
+    SetColor(r, c, clrHistory);
     let edge = kruskalsEdges[[r, c]];
     let neighbourCells = new Array();
     if (IsPosValid(r + 2, c) && kruskalsEdges[[r + 2, c]] != edge) {
@@ -384,11 +385,10 @@ function IterateKruskals() {
         RedrawTile(ir, ic);
         RedrawTile(ir + (r - ir) / 2, ic + (c - ic) / 2);
 
-        SetColor(r, c, clrHistory);
         SetColor(ir, ic, clrHistory);
         SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
         
-        // pretty inefficient way to change ids imo
+        // very inefficient way to change ids imo
         let idToChange = kruskalsEdges[[ir, ic]];
         for (let i = 0; i < Object.keys(kruskalsEdges).length; i++) {
             let k = Object.keys(kruskalsEdges)[i];
