@@ -18,9 +18,10 @@ const gen = Object.freeze({
     none: 0,
     CaveCA: 1,
     binaryTree: 2,
-    dfs: 3
+    dfs: 3,
+    kruskals: 4
 })
-const mazes = Object.freeze([gen.binaryTree, gen.dfs]);
+const mazes = Object.freeze([gen.binaryTree, gen.dfs, gen.kruskals]);
 var cgen = gen.none;
 
 var inpCol;
@@ -108,7 +109,7 @@ function DrawColors() {
     if (useColor && showProcess) {
         cCtx.clearRect(0, 0, cCan.width, cCan.height);
         for (let [key, value] of Object.entries(clrs)) {
-            let [r, c] = StringToPair(key);
+            let [r, c] = StringToArray(key);
             let clr = value;
 
             cCtx.fillStyle = clr;
@@ -144,6 +145,9 @@ function StartMethod() {
         case gen.dfs:
             StartDFS();
             break;
+        case gen.kruskals:
+            StartKruskals();
+            break;
     }
     if (showProcess) RedrawAll();
 }
@@ -161,6 +165,9 @@ function IterateMethod() {
         case gen.dfs:
             IterateDFS();
             break;
+        case gen.kruskals:
+            IterateKruskals();
+            break;
     }
     if ((!showProcess && cgen != gen.none)) { IterateMethod(); }
     else { setTimeout(IterateMethod, 1000 / fps); }
@@ -176,6 +183,9 @@ function GetGenType() {
             break;
         case "dfs":
             cgen = gen.dfs;
+            break;
+        case "kruskals":
+            cgen = gen.kruskals;
             break;
     }
 }
@@ -321,9 +331,76 @@ function IterateDFS() {
         n.splice(rand, 1);
     }
 
-
     if (dfsStack.length === 0) {
         cgen = gen.none;
+    }
+}
+var kruskalsEdges = {};
+var kruskalsIdCount;
+function StartKruskals() {
+    GenerateFilled();
+    kruskalsEdges = {};
+    let idPool = [];
+    for (let i = 0; i < ((row - 1) / 2) * ((col - 1) / 2); i++) {
+        idPool[i] = i;
+    }
+    kruskalsIdCount = idPool.length - 1;
+    for (let r = 1; r < row; r += 2) {
+        for (let c = 1; c < col; c += 2) {
+            let rand = GetRndInt(0, idPool.length);
+            kruskalsEdges[[r, c]] = idPool[rand];
+            idPool.splice(rand, 1);
+        }
+    }
+}
+function IterateKruskals() {
+    let t = GetRandomKey(kruskalsEdges);
+    let r = parseInt(t[0]);
+    let c = parseInt(t[1]);
+    let edge = kruskalsEdges[[r, c]];
+    let neighbourCells = new Array();
+    if (IsPosValid(r + 2, c) && kruskalsEdges[[r + 2, c]] != edge) {
+        neighbourCells.push([r + 2, c]);
+    }
+    if (IsPosValid(r - 2, c) && kruskalsEdges[[r - 2, c]] != edge) {
+        neighbourCells.push([r - 2, c]);
+    }
+    if (IsPosValid(r, c + 2) && kruskalsEdges[[r, c + 2]] != edge) {
+        neighbourCells.push([r, c + 2]);
+    }
+    if (IsPosValid(r, c - 2) && kruskalsEdges[[r, c - 2]] != edge) {
+        neighbourCells.push([r, c - 2]);
+    }
+    if (neighbourCells.length > 0) {
+        let rand = GetRndInt(0, neighbourCells.length);
+        let ir = neighbourCells[rand][0];
+        let ic = neighbourCells[rand][1];
+
+        SetCell(r, c, 0);
+        SetCell(ir, ic, 0);
+        SetCell(ir + (r - ir) / 2, ic + (c - ic) / 2, 0);
+
+        RedrawTile(r, c);
+        RedrawTile(ir, ic);
+        RedrawTile(ir + (r - ir) / 2, ic + (c - ic) / 2);
+
+        SetColor(r, c, clrHistory);
+        SetColor(ir, ic, clrHistory);
+        SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
+        
+        // pretty inefficient way to change ids imo
+        let idToChange = kruskalsEdges[[ir, ic]];
+        for (let i = 0; i < Object.keys(kruskalsEdges).length; i++) {
+            let k = Object.keys(kruskalsEdges)[i];
+            let v = kruskalsEdges[k];
+            if (v === idToChange) {
+                kruskalsEdges[k] = kruskalsEdges[[r, c]];
+            }
+        }
+        kruskalsIdCount--;
+        if (kruskalsIdCount <= 0) {
+            cgen = gen.none;
+        }
     }
 }
 function GenerateRandom() {
@@ -408,7 +485,7 @@ function SetCell(r, c, int) {
 function SetColor(r, c, color) {
     if (useColor && showProcess) clrs[[r, c]] = color;
 }
-function StringToPair(pair) {
+function StringToArray(pair) {
     return pair.split(",");
 }
 function GetRndInt(min, max) { return Math.floor(Math.random() * (max - min)) + min; }
@@ -424,7 +501,7 @@ function ChangeTransparency(rgba, transparency) {
     return rgba.replace(/[^,]+(?=\))/, " " + transparency);
 }
 
-//https://stackoverflow.com/a/41661388/8280780
+// modified from //https://stackoverflow.com/a/41661388/8280780
 function IsArrayInArray(arr, item) {
     var item_as_string = JSON.stringify(item);
 
@@ -433,3 +510,8 @@ function IsArrayInArray(arr, item) {
     });
     return contains;
 }
+
+function GetRandomKey(obj) {
+    var keys = Object.keys(obj);
+    return StringToArray(keys[GetRndInt(0, keys.length)]);
+};
