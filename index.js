@@ -177,7 +177,7 @@ function IterateMethod() {
             break;
     }
     if (cgen != gen.none) {
-        timer.innerHTML = "Time Elapsed: " + ((new Date().getTime() - timerStartValue)/1000)+"s";
+        timer.innerHTML = "Time Elapsed: " + ((new Date().getTime() - timerStartValue) / 1000) + "s";
     }
     if ((!showProcess && cgen != gen.none)) { IterateMethod(); }
     else { setTimeout(IterateMethod, 1000 / fps); }
@@ -411,6 +411,9 @@ function IterateKruskals() {
         if (kruskalsIdCount <= 0) {
             StopGen();
         }
+    }
+    else {
+        IterateKruskals();
     }
 }
 function GenerateRandom() {
