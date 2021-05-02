@@ -161,7 +161,6 @@ function StartMethod() {
 function IterateMethod() {
     switch (cgen) {
         case gen.none:
-            RedrawAll();
             break;
         case gen.CaveCA:
             IterateCaveCA();
@@ -486,6 +485,7 @@ function UpdateGenOptions() {
     }
 }
 function StopGen() {
+    RedrawAll();
     cgen = gen.none;
 }
 function NewArr() {
