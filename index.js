@@ -24,6 +24,10 @@ const gen = Object.freeze({
 const mazes = Object.freeze([gen.binaryTree, gen.dfs, gen.kruskals]);
 var cgen = gen.none;
 
+var timer;
+var timerStartValue;
+var timerValue;
+
 var inpCol;
 var inpRow;
 var inpSize
@@ -53,6 +57,8 @@ window.onload = function Init() {
     cCan = document.getElementById("cCan");
     cCtx = cCan.getContext("2d");
     cW = document.getElementById("canWrapper");
+
+    timer = document.getElementById("timer");
 
     // Runs at 60fps (cannot be edited), but actual iterations per second can be adjusted (i still call fps)
     setTimeout(Update, 1000 / afps);
@@ -150,6 +156,7 @@ function StartMethod() {
             break;
     }
     if (showProcess) RedrawAll();
+    timerStartValue = new Date().getTime();
 }
 function IterateMethod() {
     switch (cgen) {
@@ -168,6 +175,9 @@ function IterateMethod() {
         case gen.kruskals:
             IterateKruskals();
             break;
+    }
+    if (cgen != gen.none) {
+        timer.innerHTML = "Time Elapsed: " + ((new Date().getTime() - timerStartValue)/1000)+"s";
     }
     if ((!showProcess && cgen != gen.none)) { IterateMethod(); }
     else { setTimeout(IterateMethod, 1000 / fps); }
@@ -226,7 +236,7 @@ function IterateCaveCA() {
         }
     }
     if (changeCount === 0) {
-        cgen = gen.none;
+        StopGen();
     }
 }
 var bar = 1;
@@ -274,7 +284,7 @@ function IterateBinaryTree() {
         bar += 2;
         if (bar > row - 1) {
             SetCell(bar - 2, bac - 2, 2);
-            cgen = gen.none;
+            StopGen();
             RedrawAll();
         }
         bac = 1;
@@ -332,7 +342,7 @@ function IterateDFS() {
     }
 
     if (dfsStack.length === 0) {
-        cgen = gen.none;
+        StopGen();
     }
 }
 var kruskalsEdges = {};
@@ -387,7 +397,7 @@ function IterateKruskals() {
 
         SetColor(ir, ic, clrHistory);
         SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
-        
+
         // very inefficient way to change ids imo
         let idToChange = kruskalsEdges[[ir, ic]];
         for (let i = 0; i < Object.keys(kruskalsEdges).length; i++) {
@@ -399,7 +409,7 @@ function IterateKruskals() {
         }
         kruskalsIdCount--;
         if (kruskalsIdCount <= 0) {
-            cgen = gen.none;
+            StopGen();
         }
     }
 }
@@ -471,6 +481,9 @@ function UpdateGenOptions() {
         if (col % 2 === 0) col++;
         if (row % 2 === 0) row++
     }
+}
+function StopGen() {
+    cgen = gen.none;
 }
 function NewArr() {
     arr = Array.from(Array(row), _ => Array(col).fill(0));
