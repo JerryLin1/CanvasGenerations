@@ -499,6 +499,7 @@ function UpdateTimer() {
 }
 function StopGen() {
     RedrawAll();
+    UpdateTimer();
     cgen = gen.none;
 }
 function NewArr() {
