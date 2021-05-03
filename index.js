@@ -135,6 +135,7 @@ function DrawColors() {
 
 function Update() {
     DrawColors();
+    UpdateTimer();
 
     setTimeout(Update, 1000 / afps);
 }
@@ -174,9 +175,6 @@ function IterateMethod() {
         case gen.kruskals:
             IterateKruskals();
             break;
-    }
-    if (cgen != gen.none) {
-        timer.innerHTML = "Time Elapsed: " + ((new Date().getTime() - timerStartValue) / 1000) + "s";
     }
     if ((!showProcess && cgen != gen.none)) { IterateMethod(); }
     else { setTimeout(IterateMethod, 1000 / fps); }
@@ -489,6 +487,11 @@ function UpdateGenOptions() {
     if (mazes.includes(cgen)) {
         if (col % 2 === 0) col++;
         if (row % 2 === 0) row++
+    }
+}
+function UpdateTimer() {
+    if (cgen != gen.none) {
+        timer.innerHTML = "Time Elapsed: " + ((new Date().getTime() - timerStartValue) / 1000) + "s";
     }
 }
 function StopGen() {
