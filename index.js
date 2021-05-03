@@ -49,6 +49,7 @@ var clrs = {};
 
 const clrBlank = "rgba(0, 0, 0, 0)"
 const clrHistory = "rgba(2, 64, 150, 1)"
+const clrHistoryFaded = "rgba(2, 64, 150, 0.5)";
 const clrStart = "rgba(252, 186, 3, 1)";
 const clrImp = "rgba(207, 0, 0, 1)";
 window.onload = function Init() {
@@ -200,7 +201,6 @@ function StartCaveCA() {
     GenerateRandom();
 }
 function IterateCaveCA() {
-    if (showProcess) RedrawAll();
     var changeCount = 0;
     for (let r = 0; r < row; r++) {
         for (let c = 0; c < col; c++) {
@@ -222,10 +222,12 @@ function IterateCaveCA() {
             if (wCount > eCount && arr[r][c] != 1) {
                 arr[r][c] = 1;
                 changeCount++;
+                SetColor(r, c, clrHistoryFaded);
             }
             else if (wCount < eCount && arr[r][c] != 0) {
                 arr[r][c] = 0;
                 changeCount;
+                SetColor(r, c, clrHistoryFaded);
             }
             else {
 
@@ -235,6 +237,7 @@ function IterateCaveCA() {
     if (changeCount === 0) {
         StopGen();
     }
+    if (showProcess) RedrawAll();
 }
 var bar = 1;
 var bac = 1;
