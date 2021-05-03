@@ -345,6 +345,7 @@ function IterateDFS() {
     }
 }
 var kruskalsEdges = {};
+var kruskalsEdgesReverse = {};
 var kruskalsIdCount;
 function StartKruskals() {
     GenerateFilled();
@@ -358,6 +359,7 @@ function StartKruskals() {
         for (let c = 1; c < col; c += 2) {
             let rand = GetRndInt(0, idPool.length);
             kruskalsEdges[[r, c]] = idPool[rand];
+            kruskalsEdgesReverse[idPool[rand]] = [[r, c]];
             idPool.splice(rand, 1);
         }
     }
