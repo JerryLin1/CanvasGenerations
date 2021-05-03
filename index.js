@@ -344,6 +344,10 @@ function IterateDFS() {
         StopGen();
     }
 }
+
+// Edges stores cell: id
+// EdgesReverse stores id: cell(s), used for optimized connecting
+// without having to iterate through all edges
 var kruskalsEdges = {};
 var kruskalsEdgesReverse = {};
 var kruskalsIdCount;
@@ -355,12 +359,14 @@ function StartKruskals() {
         idPool[i] = i;
     }
     kruskalsIdCount = idPool.length - 1;
+    let count = 0;
     for (let r = 1; r < row; r += 2) {
         for (let c = 1; c < col; c += 2) {
             let rand = GetRndInt(0, idPool.length);
-            kruskalsEdges[[r, c]] = idPool[rand];
-            kruskalsEdgesReverse[idPool[rand]] = [[r, c]];
+            kruskalsEdges[[r, c]] = count;
+            kruskalsEdgesReverse[count] = [[r, c]];
             idPool.splice(rand, 1);
+            count++;
         }
     }
 }
@@ -399,15 +405,14 @@ function IterateKruskals() {
         SetColor(ir, ic, clrHistory);
         SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
 
-        // very inefficient way to change ids imo
-        let idToChange = kruskalsEdges[[ir, ic]];
-        for (let i = 0; i < Object.keys(kruskalsEdges).length; i++) {
-            let k = Object.keys(kruskalsEdges)[i];
-            let v = kruskalsEdges[k];
-            if (v === idToChange) {
-                kruskalsEdges[k] = kruskalsEdges[[r, c]];
-            }
+        let idOld = kruskalsEdges[[ir, ic]];
+        let idNew = kruskalsEdges[[r, c]];
+        for (let cell = 0; cell<kruskalsEdgesReverse[idOld].length; cell++) {
+            kruskalsEdges[kruskalsEdgesReverse[idOld][cell]] = idNew;
         }
+        kruskalsEdgesReverse[idNew] = kruskalsEdgesReverse[idNew].concat(kruskalsEdgesReverse[idOld]);
+        delete kruskalsEdgesReverse[idOld]
+
         kruskalsIdCount--;
         if (kruskalsIdCount <= 0) {
             StopGen();
