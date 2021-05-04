@@ -1,3 +1,4 @@
+// https://medium.com/analytics-vidhya/maze-generations-algorithms-and-visualizations-9f5e88a3ae37
 var tileSize = 10;
 
 var cW;
@@ -164,6 +165,9 @@ function GetGenType() {
             break;
         case "kruskals":
             cgen = Kruskals;
+            break;
+        case "prims":
+            // cgen = Prims;
             break;
     }
 }
