@@ -21,7 +21,7 @@ const gen = Object.freeze({
     dfs: 3,
     kruskals: 4
 })
-const mazes = Object.freeze([gen.binaryTree, gen.dfs, gen.kruskals]);
+
 var cgen = gen.none;
 
 var timer;
@@ -141,42 +141,12 @@ function Update() {
     setTimeout(Update, 1000 / afps);
 }
 function StartMethod() {
-    switch (cgen) {
-        case gen.none:
-            break;
-        case gen.CaveCA:
-            StartCaveCA();
-            break;
-        case gen.binaryTree:
-            StartBinaryTree();
-            break;
-        case gen.dfs:
-            StartDFS();
-            break;
-        case gen.kruskals:
-            StartKruskals();
-            break;
-    }
+    if (cgen != gen.none) cgen.Start();
     if (showProcess) RedrawAll();
     timerStartValue = new Date().getTime();
 }
 function IterateMethod() {
-    switch (cgen) {
-        case gen.none:
-            break;
-        case gen.CaveCA:
-            IterateCaveCA();
-            break;
-        case gen.binaryTree:
-            IterateBinaryTree();
-            break;
-        case gen.dfs:
-            IterateDFS();
-            break;
-        case gen.kruskals:
-            IterateKruskals();
-            break;
-    }
+    if (cgen != gen.none) cgen.Iterate();
     if ((!showProcess && cgen != gen.none)) { IterateMethod(); }
     else { setTimeout(IterateMethod, 1000 / fps); }
 }
@@ -184,245 +154,258 @@ function GetGenType() {
     let t = inpGenType.value;
     switch (t) {
         case "caveCA":
-            cgen = gen.CaveCA;
+            cgen = CaveCA;
             break;
         case "binaryTree":
-            cgen = gen.binaryTree;
+            cgen = BinaryTree;
             break;
         case "dfs":
-            cgen = gen.dfs;
+            cgen = DFS;
             break;
         case "kruskals":
-            cgen = gen.kruskals;
+            cgen = Kruskals;
             break;
     }
 }
-function StartCaveCA() {
-    GenerateRandom();
+class Generations {
+    static maze = true;
+    static Start() { }
+    static Iterate() { }
 }
-function IterateCaveCA() {
-    var changeCount = 0;
-    for (let r = 0; r < row; r++) {
-        for (let c = 0; c < col; c++) {
-            var wCount = 0;
-            var eCount = 0;
-            for (let j = r - 1; j <= r + 1; j++) {
-                for (let k = c - 1; k <= c + 1; k++) {
-                    if (IsPosValid(j, k)) {
-                        if (j != r || k != c) {
-                            if (arr[j][k] === 1) wCount++;
-                            else if (arr[j][k] === 0) eCount++;
+class CaveCA extends Generations {
+    static IsMaze = false;
+    static Start() {
+        GenerateRandom();
+    }
+    static Iterate() {
+        var changeCount = 0;
+        for (let r = 0; r < row; r++) {
+            for (let c = 0; c < col; c++) {
+                var wCount = 0;
+                var eCount = 0;
+                for (let j = r - 1; j <= r + 1; j++) {
+                    for (let k = c - 1; k <= c + 1; k++) {
+                        if (IsPosValid(j, k)) {
+                            if (j != r || k != c) {
+                                if (arr[j][k] === 1) wCount++;
+                                else if (arr[j][k] === 0) eCount++;
+                            }
+                        }
+                        else {
+                            wCount++;
                         }
                     }
-                    else {
-                        wCount++;
-                    }
+                }
+                if (wCount > eCount && arr[r][c] != 1) {
+                    arr[r][c] = 1;
+                    changeCount++;
+                    SetColor(r, c, clrHistoryFaded);
+                }
+                else if (wCount < eCount && arr[r][c] != 0) {
+                    arr[r][c] = 0;
+                    changeCount;
+                    SetColor(r, c, clrHistoryFaded);
+                }
+                else {
+
                 }
             }
-            if (wCount > eCount && arr[r][c] != 1) {
-                arr[r][c] = 1;
-                changeCount++;
-                SetColor(r, c, clrHistoryFaded);
-            }
-            else if (wCount < eCount && arr[r][c] != 0) {
-                arr[r][c] = 0;
-                changeCount;
-                SetColor(r, c, clrHistoryFaded);
-            }
-            else {
-
-            }
         }
+        if (changeCount === 0) {
+            StopGen();
+        }
+        if (showProcess) RedrawAll();
     }
-    if (changeCount === 0) {
-        StopGen();
-    }
-    if (showProcess) RedrawAll();
 }
 var bar = 1;
 var bac = 1;
-function StartBinaryTree() {
-    GenerateFilled();
-    bar = 1;
-    bac = 1;
-    SetCell(bar, bac, 2);
-}
-function IterateBinaryTree() {
-    let n = new Array();
-    if (IsPosValid(bar - 2, bac) && arr[bar - 2][bac] != 1) {
-        n.push([bar - 1, bac]);
-    }
-    if (IsPosValid(bar, bac - 2) && arr[bar][bac - 2] != 1) {
-        n.push([bar, bac - 1]);
-    }
-    if (n.length === 1) {
-        arr[n[0][0]][n[0][1]] = 0;
-        arr[bar][bac] = 0;
-
-        RedrawTile(n[0][0], n[0][1]);
-        RedrawTile(bar, bac);
-
-        SetColor(n[0][0], n[0][1], clrHistory);
-        SetColor(bar, bac, clrHistory);
-    }
-    else if (n.length === 2) {
-        let rand = GetRndInt(0, 2);
-        arr[n[rand][0]][n[rand][1]] = 0;
-        arr[bar][bac] = 0;
-
-        RedrawTile(n[rand][0], n[rand][1]);
-        RedrawTile(bar, bac);
-
-        SetColor(n[rand][0], n[rand][1], clrHistory);
-        SetColor(bar, bac, clrHistory);
-    }
-    else {
-        // nothing
-    }
-    bac += 2;
-    if (bac > col - 1) {
-        bar += 2;
-        if (bar > row - 1) {
-            SetCell(bar - 2, bac - 2, 2);
-            StopGen();
-            RedrawAll();
-        }
+class BinaryTree extends Generations {
+    static Start() {
+        GenerateFilled();
+        bar = 1;
         bac = 1;
+        SetCell(bar, bac, 2);
+    }
+    static Iterate() {
+        let n = new Array();
+        if (IsPosValid(bar - 2, bac) && arr[bar - 2][bac] != 1) {
+            n.push([bar - 1, bac]);
+        }
+        if (IsPosValid(bar, bac - 2) && arr[bar][bac - 2] != 1) {
+            n.push([bar, bac - 1]);
+        }
+        if (n.length === 1) {
+            arr[n[0][0]][n[0][1]] = 0;
+            arr[bar][bac] = 0;
+
+            RedrawTile(n[0][0], n[0][1]);
+            RedrawTile(bar, bac);
+
+            SetColor(n[0][0], n[0][1], clrHistory);
+            SetColor(bar, bac, clrHistory);
+        }
+        else if (n.length === 2) {
+            let rand = GetRndInt(0, 2);
+            arr[n[rand][0]][n[rand][1]] = 0;
+            arr[bar][bac] = 0;
+
+            RedrawTile(n[rand][0], n[rand][1]);
+            RedrawTile(bar, bac);
+
+            SetColor(n[rand][0], n[rand][1], clrHistory);
+            SetColor(bar, bac, clrHistory);
+        }
+        else {
+            // nothing
+        }
+        bac += 2;
+        if (bac > col - 1) {
+            bar += 2;
+            if (bar > row - 1) {
+                SetCell(bar - 2, bac - 2, 2);
+                StopGen();
+                RedrawAll();
+            }
+            bac = 1;
+        }
     }
 }
 var dfsStack = [];
 var dfsVisited = [];
-function StartDFS() {
-    dfsStack = [[1, 1]];
-    dfsVisited = [];
-    dfsVisited.push(dfsStack[0]);
-    GenerateFilled();
-    SetCell(dfsStack[0][0], dfsStack[0][1], 2);
+class DFS extends Generations {
+    static Start() {
+        dfsStack = [[1, 1]];
+        dfsVisited = [];
+        dfsVisited.push(dfsStack[0]);
+        GenerateFilled();
+        SetCell(dfsStack[0][0], dfsStack[0][1], 2);
+    }
+    static Iterate() {
+        let cell = dfsStack.pop();
+        let [r, c] = cell;
+        if (r === row - 2 && c === col - 2) {
+            SetCell(r, c, 2);
+        }
+        SetColor(r, c, clrHistory);
+        let n = new Array();
+        if (IsPosValid(r + 2, c) && !IsArrayInArray(dfsVisited, [r + 2, c])) {
+            n.push([r + 2, c]);
+        }
+        if (IsPosValid(r - 2, c) && !IsArrayInArray(dfsVisited, [r - 2, c])) {
+            n.push([r - 2, c]);
+        }
+        if (IsPosValid(r, c + 2) && !IsArrayInArray(dfsVisited, [r, c + 2])) {
+            n.push([r, c + 2]);
+        }
+        if (IsPosValid(r, c - 2) && !IsArrayInArray(dfsVisited, [r, c - 2])) {
+            n.push([r, c - 2]);
+        }
+        // Visit and connect all neighbour cells
+        for (let i = 0; i < n.length; i++) {
+            dfsVisited.push(n[i]);
+            let ir = n[i][0];
+            let ic = n[i][1];
+            SetCell(ir, ic, 0);
+            SetCell(ir + (r - ir) / 2, ic + (c - ic) / 2, 0);
+
+            RedrawTile(ir, ic);
+            RedrawTile(ir + (r - ir) / 2, ic + (c - ic) / 2);
+
+            SetColor(ir, ic, clrHistory);
+            SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
+        }
+        // Push neighbour cells to stack randomly
+        let ilength = n.length;
+        for (let i = 0; i < ilength; i++) {
+            let rand = GetRndInt(0, n.length);
+            dfsStack.push(n[rand]);
+            n.splice(rand, 1);
+        }
+        if (dfsStack.length === 0) {
+            StopGen();
+        }
+    }
 }
-function IterateDFS() {
-    let cell = dfsStack.pop();
-    let [r, c] = cell;
-    if (r === row - 2 && c === col - 2) {
-        SetCell(r, c, 2);
-    }
-    SetColor(r, c, clrHistory);
-    let n = new Array();
-    if (IsPosValid(r + 2, c) && !IsArrayInArray(dfsVisited, [r + 2, c])) {
-        n.push([r + 2, c]);
-    }
-    if (IsPosValid(r - 2, c) && !IsArrayInArray(dfsVisited, [r - 2, c])) {
-        n.push([r - 2, c]);
-    }
-    if (IsPosValid(r, c + 2) && !IsArrayInArray(dfsVisited, [r, c + 2])) {
-        n.push([r, c + 2]);
-    }
-    if (IsPosValid(r, c - 2) && !IsArrayInArray(dfsVisited, [r, c - 2])) {
-        n.push([r, c - 2]);
-    }
-    // Visit and connect all neighbour cells
-    for (let i = 0; i < n.length; i++) {
-        dfsVisited.push(n[i]);
-        let ir = n[i][0];
-        let ic = n[i][1];
-        SetCell(ir, ic, 0);
-        SetCell(ir + (r - ir) / 2, ic + (c - ic) / 2, 0);
-
-        RedrawTile(ir, ic);
-        RedrawTile(ir + (r - ir) / 2, ic + (c - ic) / 2);
-
-        SetColor(ir, ic, clrHistory);
-        SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
-    }
-    // Push neighbour cells to stack randomly
-    let ilength = n.length;
-    for (let i = 0; i < ilength; i++) {
-        let rand = GetRndInt(0, n.length);
-        dfsStack.push(n[rand]);
-        n.splice(rand, 1);
-    }
-
-    if (dfsStack.length === 0) {
-        StopGen();
-    }
-}
-
 // Edges stores cell: id
 // EdgesReverse stores id: cell(s), used for optimized connecting
 // without having to iterate through all edges
 var kruskalsEdges = {};
 var kruskalsEdgesReverse = {};
 var kruskalsIdCount;
-function StartKruskals() {
-    GenerateFilled();
-    kruskalsEdges = {};
-    let idPool = [];
-    for (let i = 0; i < ((row - 1) / 2) * ((col - 1) / 2); i++) {
-        idPool[i] = i;
+class Kruskals extends Generations {
+    static Start() {
+        GenerateFilled();
+        kruskalsEdges = {};
+        let idPool = [];
+        for (let i = 0; i < ((row - 1) / 2) * ((col - 1) / 2); i++) {
+            idPool[i] = i;
+        }
+        kruskalsIdCount = idPool.length - 1;
+        let count = 0;
+        for (let r = 1; r < row; r += 2) {
+            for (let c = 1; c < col; c += 2) {
+                let rand = GetRndInt(0, idPool.length);
+                kruskalsEdges[[r, c]] = count;
+                kruskalsEdgesReverse[count] = [[r, c]];
+                idPool.splice(rand, 1);
+                count++;
+            }
+        }
     }
-    kruskalsIdCount = idPool.length - 1;
-    let count = 0;
-    for (let r = 1; r < row; r += 2) {
-        for (let c = 1; c < col; c += 2) {
-            let rand = GetRndInt(0, idPool.length);
-            kruskalsEdges[[r, c]] = count;
-            kruskalsEdgesReverse[count] = [[r, c]];
-            idPool.splice(rand, 1);
-            count++;
+    static Iterate() {
+        let t = GetRandomKey(kruskalsEdges);
+        let r = parseInt(t[0]);
+        let c = parseInt(t[1]);
+        SetColor(r, c, clrHistory);
+        let edge = kruskalsEdges[[r, c]];
+        let neighbourCells = new Array();
+        if (IsPosValid(r + 2, c) && kruskalsEdges[[r + 2, c]] != edge) {
+            neighbourCells.push([r + 2, c]);
+        }
+        if (IsPosValid(r - 2, c) && kruskalsEdges[[r - 2, c]] != edge) {
+            neighbourCells.push([r - 2, c]);
+        }
+        if (IsPosValid(r, c + 2) && kruskalsEdges[[r, c + 2]] != edge) {
+            neighbourCells.push([r, c + 2]);
+        }
+        if (IsPosValid(r, c - 2) && kruskalsEdges[[r, c - 2]] != edge) {
+            neighbourCells.push([r, c - 2]);
+        }
+        if (neighbourCells.length > 0) {
+            let rand = GetRndInt(0, neighbourCells.length);
+            let ir = neighbourCells[rand][0];
+            let ic = neighbourCells[rand][1];
+
+            SetCell(r, c, 0);
+            SetCell(ir, ic, 0);
+            SetCell(ir + (r - ir) / 2, ic + (c - ic) / 2, 0);
+
+            RedrawTile(r, c);
+            RedrawTile(ir, ic);
+            RedrawTile(ir + (r - ir) / 2, ic + (c - ic) / 2);
+
+            SetColor(ir, ic, clrHistory);
+            SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
+
+            let idOld = kruskalsEdges[[ir, ic]];
+            let idNew = kruskalsEdges[[r, c]];
+            for (let cell = 0; cell < kruskalsEdgesReverse[idOld].length; cell++) {
+                kruskalsEdges[kruskalsEdgesReverse[idOld][cell]] = idNew;
+            }
+            kruskalsEdgesReverse[idNew] = kruskalsEdgesReverse[idNew].concat(kruskalsEdgesReverse[idOld]);
+            delete kruskalsEdgesReverse[idOld]
+
+            kruskalsIdCount--;
+            if (kruskalsIdCount <= 0) {
+                StopGen();
+            }
+        }
+        else {
+            IterateKruskals();
         }
     }
 }
-function IterateKruskals() {
-    let t = GetRandomKey(kruskalsEdges);
-    let r = parseInt(t[0]);
-    let c = parseInt(t[1]);
-    SetColor(r, c, clrHistory);
-    let edge = kruskalsEdges[[r, c]];
-    let neighbourCells = new Array();
-    if (IsPosValid(r + 2, c) && kruskalsEdges[[r + 2, c]] != edge) {
-        neighbourCells.push([r + 2, c]);
-    }
-    if (IsPosValid(r - 2, c) && kruskalsEdges[[r - 2, c]] != edge) {
-        neighbourCells.push([r - 2, c]);
-    }
-    if (IsPosValid(r, c + 2) && kruskalsEdges[[r, c + 2]] != edge) {
-        neighbourCells.push([r, c + 2]);
-    }
-    if (IsPosValid(r, c - 2) && kruskalsEdges[[r, c - 2]] != edge) {
-        neighbourCells.push([r, c - 2]);
-    }
-    if (neighbourCells.length > 0) {
-        let rand = GetRndInt(0, neighbourCells.length);
-        let ir = neighbourCells[rand][0];
-        let ic = neighbourCells[rand][1];
 
-        SetCell(r, c, 0);
-        SetCell(ir, ic, 0);
-        SetCell(ir + (r - ir) / 2, ic + (c - ic) / 2, 0);
-
-        RedrawTile(r, c);
-        RedrawTile(ir, ic);
-        RedrawTile(ir + (r - ir) / 2, ic + (c - ic) / 2);
-
-        SetColor(ir, ic, clrHistory);
-        SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
-
-        let idOld = kruskalsEdges[[ir, ic]];
-        let idNew = kruskalsEdges[[r, c]];
-        for (let cell = 0; cell<kruskalsEdgesReverse[idOld].length; cell++) {
-            kruskalsEdges[kruskalsEdgesReverse[idOld][cell]] = idNew;
-        }
-        kruskalsEdgesReverse[idNew] = kruskalsEdgesReverse[idNew].concat(kruskalsEdgesReverse[idOld]);
-        delete kruskalsEdgesReverse[idOld]
-
-        kruskalsIdCount--;
-        if (kruskalsIdCount <= 0) {
-            StopGen();
-        }
-    }
-    else {
-        IterateKruskals();
-    }
-}
 function GenerateRandom() {
     NewArr();
     for (let r = 0; r < row; r++) {
@@ -487,7 +470,7 @@ function UpdateGenOptions() {
     row = parseInt(inpRow.value);
 
     // Mazes should have odd number of columns and rows
-    if (mazes.includes(cgen)) {
+    if (cgen.maze === true) {
         if (col % 2 === 0) col++;
         if (row % 2 === 0) row++
     }
