@@ -1,4 +1,5 @@
 // https://medium.com/analytics-vidhya/maze-generations-algorithms-and-visualizations-9f5e88a3ae37
+// https://journal.stuffwithstuff.com/2014/12/21/rooms-and-mazes/
 var tileSize = 10;
 
 var cW;
@@ -167,12 +168,12 @@ function GetGenType() {
             cgen = Kruskals;
             break;
         case "prims":
-            // cgen = Prims;
+            cgen = Prims;
             break;
     }
 }
 class Generations {
-    static maze = true;
+    static IsMaze = true;
     static Start() { }
     static Iterate() { }
 }
@@ -405,8 +406,74 @@ class Kruskals extends Generations {
             }
         }
         else {
-            IterateKruskals();
+            this.Iterate();
         }
+    }
+}
+var primsUC = [];
+var primsVisited = [];
+class Prims extends Generations {
+    static Start() {
+        GenerateFilled();
+        // primsUC = [];
+        // primsVisited = [];
+        // primsUC.push([1, 1]);
+    }
+    static Iterate() {
+
+        // let rand = GetRndInt(0, primsUC.length);
+        // let [r, c] = primsUC[rand];
+
+        // primsVisited.push(primsUC[rand]);
+        // primsUC.splice(rand, 1);
+
+        // let n = new Array();
+        // if (IsPosValid(r + 2, c) && !IsArrayInArray(primsVisited, [r + 2, c])) {
+        //     n.push([r + 2, c]);
+        // }
+        // if (IsPosValid(r - 2, c) && !IsArrayInArray(primsVisited, [r - 2, c])) {
+        //     n.push([r - 2, c]);
+        // }
+        // if (IsPosValid(r, c + 2) && !IsArrayInArray(primsVisited, [r, c + 2])) {
+        //     n.push([r, c + 2]);
+        // }
+        // if (IsPosValid(r, c - 2) && !IsArrayInArray(primsVisited, [r, c - 2])) {
+        //     n.push([r, c - 2]);
+        // }
+
+        // if (n.length > 0) {
+        //     for (let i = 0; i < n.length; i++) {
+        //         if (arr[n[i][0]][n[i][1]] === 1) {
+        //             primsUC.push(n[i]);
+        //             n.splice(i, 1);
+        //         }
+        //     }
+
+        //     let rand2 = GetRndInt(0, n.length);
+        //     let [ir, ic] = n[rand2];
+
+        //     SetCell(r, c, 0);
+        //     SetCell(ir, ic, 0);
+        //     SetCell(ir + (r - ir) / 2, ic + (c - ic) / 2, 0);
+
+        //     RedrawTile(r, c);
+        //     RedrawTile(ir, ic);
+        //     RedrawTile(ir + (r - ir) / 2, ic + (c - ic) / 2);
+
+        //     // SetColor(r, c, clrImp);
+        //     // SetColor(ir, ic, clrHistory);
+        //     // SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
+
+        //     // primsVisited.push([ir, ic]);
+
+        //     primsUC.push([ir - (r - ir), ic - (c - ic)])
+        //     SetColor(ir - (r - ir), ic - (c - ic), clrHistory);
+        // }
+        // // console.log(primsUC);
+
+        // if (primsUC.length === 0) {
+        //     cgen = gen.none;
+        // }
     }
 }
 
@@ -474,7 +541,7 @@ function UpdateGenOptions() {
     row = parseInt(inpRow.value);
 
     // Mazes should have odd number of columns and rows
-    if (cgen.maze === true) {
+    if (cgen.IsMaze === true) {
         if (col % 2 === 0) col++;
         if (row % 2 === 0) row++
     }
