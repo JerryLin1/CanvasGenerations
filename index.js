@@ -234,7 +234,9 @@ class BinaryTree extends Generations {
         bac = 1;
         SetCell(bar, bac, 2);
     }
+    // For each cell in the grid
     static Iterate() {
+        // Check for possible connections up or to the left
         let n = new Array();
         if (IsPosValid(bar - 2, bac) && arr[bar - 2][bac] != 1) {
             n.push([bar - 1, bac]);
@@ -242,6 +244,7 @@ class BinaryTree extends Generations {
         if (IsPosValid(bar, bac - 2) && arr[bar][bac - 2] != 1) {
             n.push([bar, bac - 1]);
         }
+        // Randomly connect to one
         if (n.length === 1) {
             arr[n[0][0]][n[0][1]] = 0;
             arr[bar][bac] = 0;
