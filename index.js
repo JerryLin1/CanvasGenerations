@@ -292,6 +292,7 @@ class DFS extends Generations {
         SetCell(dfsStack[0][0], dfsStack[0][1], 2);
     }
     static Iterate() {
+        // Pop cell from the stack
         let cell = dfsStack.pop();
         let [r, c] = cell;
         if (r === row - 2 && c === col - 2) {
@@ -299,6 +300,7 @@ class DFS extends Generations {
         }
         SetColor(r, c, clrHistory);
         let n = new Array();
+        // Check adjacent cells for possible connections
         if (IsPosValid(r + 2, c) && !IsArrayInArray(dfsVisited, [r + 2, c])) {
             n.push([r + 2, c]);
         }
@@ -325,7 +327,7 @@ class DFS extends Generations {
             SetColor(ir, ic, clrHistory);
             SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
         }
-        // Push neighbour cells to stack randomly
+        // Push neighbour cells to stack in random order
         let ilength = n.length;
         for (let i = 0; i < ilength; i++) {
             let rand = GetRndInt(0, n.length);
