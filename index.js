@@ -152,7 +152,7 @@ function IterateMethod() {
     if ((!showProcess && cgen != gen.none)) { IterateMethod(); }
     else {
         // if (fps != 0)
-            setTimeout(IterateMethod, 1000 / fps);
+        setTimeout(IterateMethod, 1000 / fps);
     }
 }
 function GetGenType() {
@@ -366,8 +366,10 @@ class Kruskals extends Generations {
         let r = parseInt(t[0]);
         let c = parseInt(t[1]);
         SetColor(r, c, clrHistory);
-        
+
         let edge = kruskalsEdges[[r, c]];
+
+        // Check each adjacent cell for possible connections
         let neighbourCells = new Array();
         if (IsPosValid(r + 2, c) && kruskalsEdges[[r + 2, c]] != edge) {
             neighbourCells.push([r + 2, c]);
@@ -381,6 +383,7 @@ class Kruskals extends Generations {
         if (IsPosValid(r, c - 2) && kruskalsEdges[[r, c - 2]] != edge) {
             neighbourCells.push([r, c - 2]);
         }
+        // Randomly choose one connectable cell and connect it
         if (neighbourCells.length > 0) {
             let rand = GetRndInt(0, neighbourCells.length);
             let ir = neighbourCells[rand][0];
@@ -394,10 +397,11 @@ class Kruskals extends Generations {
             RedrawTile(ir, ic);
             RedrawTile(ir + (r - ir) / 2, ic + (c - ic) / 2);
 
-            
+
             SetColor(ir, ic, clrHistory);
             SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
 
+            // Update subset ids
             let idOld = kruskalsEdges[[ir, ic]];
             let idNew = kruskalsEdges[[r, c]];
             for (let cell = 0; cell < kruskalsEdgesReverse[idOld].length; cell++) {
@@ -406,11 +410,14 @@ class Kruskals extends Generations {
             kruskalsEdgesReverse[idNew] = kruskalsEdgesReverse[idNew].concat(kruskalsEdgesReverse[idOld]);
             delete kruskalsEdgesReverse[idOld]
 
+            // If there is only one id left, the generation is complete
             kruskalsIdCount--;
             if (kruskalsIdCount <= 0) {
                 StopGen();
             }
         }
+        // If there are no possible connections, iterate again instead of waiting until next iteration
+        // (You could wait but then the generation would take much longer)
         else {
             this.Iterate();
         }
@@ -439,7 +446,7 @@ class Prims extends Generations {
             let rand = GetRndInt(0, primsUC.length);
             let [r, c] = primsUC[rand];
             primsUC.splice(rand, 1);
-            // FOR SOME REASON arr[r][c] IS A NONWALLED TILE??? WTF
+            // FOR SOME REASON arr[r][c] IS SOMETIMES A NONWALLED TILE??? WTF
             if (arr[r][c] === 1) {
 
                 delete clrs[[r, c]];
