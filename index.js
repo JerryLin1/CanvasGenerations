@@ -150,7 +150,10 @@ function StartMethod() {
 function IterateMethod() {
     if (cgen != gen.none) cgen.Iterate();
     if ((!showProcess && cgen != gen.none)) { IterateMethod(); }
-    else { setTimeout(IterateMethod, 1000 / fps); }
+    else {
+        if (fps != 0)
+            setTimeout(IterateMethod, 1000 / fps);
+    }
 }
 function GetGenType() {
     let t = inpGenType.value;
@@ -324,6 +327,7 @@ class DFS extends Generations {
         for (let i = 0; i < ilength; i++) {
             let rand = GetRndInt(0, n.length);
             dfsStack.push(n[rand]);
+            SetColor(n[rand][0], n[rand][1], clrImp)
             n.splice(rand, 1);
         }
         if (dfsStack.length === 0) {
@@ -410,70 +414,89 @@ class Kruskals extends Generations {
         }
     }
 }
+var primsCells = [];
 var primsUC = [];
-var primsVisited = [];
 class Prims extends Generations {
     static Start() {
         GenerateFilled();
-        // primsUC = [];
-        // primsVisited = [];
-        // primsUC.push([1, 1]);
+        primsCells = [];
+        primsUC = [];
+        for (let r = 1; r < row; r++) {
+            for (let c = 1; c < col; c++) {
+                primsCells.push([r, c]);
+            }
+        }
+        SetCell(1, 1, 0);
+        primsUC.push([1, 3]);
+        primsUC.push([3, 1]);
+        SetColor(1, 3, clrImp);
+        SetColor(3, 1, clrImp);
     }
     static Iterate() {
+        if (primsUC.length > 0) {
+            let rand = GetRndInt(0, primsUC.length);
+            let [r, c] = primsUC[rand];
+            primsUC.splice(rand, 1);
+            // FOR SOME REASON arr[r][c] IS A NONWALLED TILE??? WTF
+            if (arr[r][c] === 1) {
 
-        // let rand = GetRndInt(0, primsUC.length);
-        // let [r, c] = primsUC[rand];
+                delete clrs[[r, c]];
 
-        // primsVisited.push(primsUC[rand]);
-        // primsUC.splice(rand, 1);
+                // Loop through adjacent not-walled areas to connect to
+                let possibleConnect = [];
+                if (IsPosValid(r + 2, c) && arr[r + 2][c] != 1) {
+                    possibleConnect.push([r + 2, c]);
+                }
+                if (IsPosValid(r - 2, c) && arr[r - 2][c] != 1) {
+                    possibleConnect.push([r - 2, c]);
+                }
+                if (IsPosValid(r, c + 2) && arr[r][c + 2] != 1) {
+                    possibleConnect.push([r, c + 2]);
+                }
+                if (IsPosValid(r, c - 2) && arr[r][c - 2] != 1) {
+                    possibleConnect.push([r, c - 2]);
+                }
 
-        // let n = new Array();
-        // if (IsPosValid(r + 2, c) && !IsArrayInArray(primsVisited, [r + 2, c])) {
-        //     n.push([r + 2, c]);
-        // }
-        // if (IsPosValid(r - 2, c) && !IsArrayInArray(primsVisited, [r - 2, c])) {
-        //     n.push([r - 2, c]);
-        // }
-        // if (IsPosValid(r, c + 2) && !IsArrayInArray(primsVisited, [r, c + 2])) {
-        //     n.push([r, c + 2]);
-        // }
-        // if (IsPosValid(r, c - 2) && !IsArrayInArray(primsVisited, [r, c - 2])) {
-        //     n.push([r, c - 2]);
-        // }
+                if (possibleConnect.length > 0) {
+                    let randC = GetRndInt(0, possibleConnect.length);
+                    let [ir, ic] = possibleConnect[randC];
 
-        // if (n.length > 0) {
-        //     for (let i = 0; i < n.length; i++) {
-        //         if (arr[n[i][0]][n[i][1]] === 1) {
-        //             primsUC.push(n[i]);
-        //             n.splice(i, 1);
-        //         }
-        //     }
+                    SetCell(r, c, 0);
+                    SetCell(ir, ic, 0);
+                    SetCell(ir + (r - ir) / 2, ic + (c - ic) / 2, 0);
 
-        //     let rand2 = GetRndInt(0, n.length);
-        //     let [ir, ic] = n[rand2];
+                    RedrawTile(r, c);
+                    RedrawTile(ir, ic);
+                    RedrawTile(ir + (r - ir) / 2, ic + (c - ic) / 2);
 
-        //     SetCell(r, c, 0);
-        //     SetCell(ir, ic, 0);
-        //     SetCell(ir + (r - ir) / 2, ic + (c - ic) / 2, 0);
+                    SetColor(r, c, clrHistory);
+                    SetColor(ir, ic, clrHistory);
+                    SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
 
-        //     RedrawTile(r, c);
-        //     RedrawTile(ir, ic);
-        //     RedrawTile(ir + (r - ir) / 2, ic + (c - ic) / 2);
-
-        //     // SetColor(r, c, clrImp);
-        //     // SetColor(ir, ic, clrHistory);
-        //     // SetColor(ir + (r - ir) / 2, ic + (c - ic) / 2, clrHistory);
-
-        //     // primsVisited.push([ir, ic]);
-
-        //     primsUC.push([ir - (r - ir), ic - (c - ic)])
-        //     SetColor(ir - (r - ir), ic - (c - ic), clrHistory);
-        // }
-        // // console.log(primsUC);
-
-        // if (primsUC.length === 0) {
-        //     cgen = gen.none;
-        // }
+                    let pushToUc = [];
+                    if (IsPosValid(r + 2, c) && arr[r + 2][c] === 1) {
+                        pushToUc.push([r + 2, c]);
+                    }
+                    if (IsPosValid(r - 2, c) && arr[r - 2][c] === 1) {
+                        pushToUc.push([r - 2, c]);
+                    }
+                    if (IsPosValid(r, c + 2) && arr[r][c + 2] === 1) {
+                        pushToUc.push([r, c + 2]);
+                    }
+                    if (IsPosValid(r, c - 2) && arr[r][c - 2] === 1) {
+                        pushToUc.push([r, c - 2]);
+                    }
+                    for (let p = 0; p < pushToUc.length; p++) {
+                        primsUC.push(pushToUc[p]);
+                        SetColor(pushToUc[p][0], pushToUc[p][1], clrImp);
+                    }
+                }
+            }
+            else this.Iterate();
+        }
+        else {
+            cgen = gen.none;
+        }
     }
 }
 
