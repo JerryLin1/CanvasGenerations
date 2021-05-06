@@ -496,7 +496,7 @@ class Prims extends Generations {
             else this.Iterate();
         }
         else {
-            cgen = gen.none;
+            StopGen();
         }
     }
 }
