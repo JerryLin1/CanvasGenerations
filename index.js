@@ -564,6 +564,7 @@ function UpdateOptions() {
 
     fps = parseInt(inpFps.value);
     useColor = inpColour.checked;
+    if (!useColor) ResetArrC();
     showProcess = inpShowProcess.checked;
 }
 function IsPosValid(j, k) {
