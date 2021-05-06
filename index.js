@@ -151,7 +151,7 @@ function IterateMethod() {
     if (cgen != gen.none) cgen.Iterate();
     if ((!showProcess && cgen != gen.none)) { IterateMethod(); }
     else {
-        if (fps != 0)
+        // if (fps != 0)
             setTimeout(IterateMethod, 1000 / fps);
     }
 }
