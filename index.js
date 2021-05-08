@@ -173,6 +173,9 @@ function GetGenType() {
         case "prims":
             cgen = Prims;
             break;
+        case "rd":
+            cgen = RecursiveDivison;
+            break;
     }
 }
 class Generations {
@@ -435,6 +438,7 @@ class Prims extends Generations {
         GenerateFilled();
         primsCells = [];
         primsUC = [];
+        // should this be ++ instead of +=2???????
         for (let r = 1; r < row; r++) {
             for (let c = 1; c < col; c++) {
                 primsCells.push([r, c]);
@@ -513,6 +517,104 @@ class Prims extends Generations {
         }
     }
 }
+// Not actually recursion even, but the technique used is similar - repeatedly split into sections with walls 
+var rdsCells = [];
+class RecursiveDivison extends Generations {
+    static Start() {
+        GenerateEmptyBorder();
+        rdsCells = [];
+        for (let r = 2; r < row; r += 2) {
+            for (let c = 2; c < col; c += 2) {
+                rdsCells.push([r, c]);
+            }
+        }
+    }
+    static Iterate() {
+        let rand = GetRndInt(0, rdsCells.length);
+        let [r, c] = rdsCells[rand];
+
+        let adjacentCount = 0;
+        if (IsPosValid(r + 1, c) && arr[r + 1][c] === 1) {
+            adjacentCount++;
+        }
+        if (IsPosValid(r - 1, c) && arr[r - 1][c] === 1) {
+            adjacentCount++;
+        }
+        if (IsPosValid(r, c + 1) && arr[r][c + 1] === 1) {
+            adjacentCount++;
+        }
+        if (IsPosValid(r, c - 1) && arr[r][c - 1] === 1) {
+            adjacentCount++;
+        }
+        rdsCells.splice(rand, 1);
+        if (rdsCells.length <= 0) {
+            StopGen();
+        }
+        else {
+            if (adjacentCount == 0) {
+                let horv = Math.random();
+                let wallCells = [];
+                // Vertical
+                if (horv > 0.5) {
+                    let osr = 0;
+                    while (true) {
+                        if (IsPosValid(r + osr, c) && arr[r + osr][c] != 1) {
+                            wallCells.push([r + osr, c]);
+                            osr++;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    osr = 0;
+                    while (true) {
+                        if (IsPosValid(r - osr, c) && arr[r - osr][c] != 1) {
+                            wallCells.push([r - osr, c]);
+                            osr++;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
+                // Horizontal
+                else {
+                    let osc = 0;
+                    while (true) {
+                        if (IsPosValid(r, c + osc) && arr[r][c + osc] != 1) {
+                            wallCells.push([r, c + osc]);
+                            osc++;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                    osc = 0;
+                    while (true) {
+                        if (IsPosValid(r, c - osc) && arr[r][c - osc] != 1) {
+                            wallCells.push([r, c - osc]);
+                            osc++;
+                        }
+                        else {
+                            break;
+                        }
+                    }
+                }
+                if (wallCells.length > 0) {
+                    let removeRand = GetRndInt(0, wallCells.length / 2);
+                    wallCells.splice(removeRand * 2 - 1, 1);
+                    for (let i = 0; i < wallCells.length; i++) {
+                        let [ir, ic] = wallCells[i];
+                        SetCell(ir, ic, 1);
+                        RedrawTile(ir, ic, 0);
+                        SetColor(ir, ic, clrHistory);
+                    }
+                }
+            }
+            else this.Iterate();
+        }
+    }
+}
 
 function GenerateRandom() {
     NewArr();
@@ -537,6 +639,15 @@ function GenerateEmpty() {
     for (let r = 0; r < row; r++) {
         for (let c = 0; c < col; c++) {
             arr[r][c] = 0;
+        }
+    }
+}
+function GenerateEmptyBorder() {
+    GenerateEmpty();
+    for (let r = 0; r < row; r++) {
+        for (let c = 0; c < col; c++) {
+            if (r == 0 || r == row - 1 || c == 0 || c == col - 1)
+                arr[r][c] = 1;
         }
     }
 }
@@ -567,8 +678,8 @@ function UpdateOptions() {
     if (!useColor) ResetArrC();
     showProcess = inpShowProcess.checked;
 }
-function IsPosValid(j, k) {
-    if (j >= 0 && j < row && k >= 0 && k < col) {
+function IsPosValid(r, c) {
+    if (r >= 0 && r < row && c >= 0 && c < col) {
         return true;
     }
     else return false;
