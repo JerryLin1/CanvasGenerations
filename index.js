@@ -431,19 +431,11 @@ class Kruskals extends Generations {
         }
     }
 }
-var primsCells = [];
 var primsUC = [];
 class Prims extends Generations {
     static Start() {
         GenerateFilled();
-        primsCells = [];
         primsUC = [];
-        // should this be ++ instead of +=2???????
-        for (let r = 1; r < row; r++) {
-            for (let c = 1; c < col; c++) {
-                primsCells.push([r, c]);
-            }
-        }
         SetCell(1, 1, 0);
         primsUC.push([1, 3]);
         primsUC.push([3, 1]);
