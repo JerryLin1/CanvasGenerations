@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <script src="/index.c71f97c6.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Maze Generator</title>
+    <link rel="stylesheet" href="/index.6d0d008b.css">
+  </head>
+  <body>
+    <label for="fps" class="label" title="Number of iterations per second.">FPS:</label>
+    <input id="fps" type="number" value="60" min="1" onchange="this.value = Math.abs(this.value); AutoUpdateOptions()">
+    <label for="size" class="label" title="Size of each square cell in pixels.">Cell size:</label>
+    <input id="size" type="number" value="10" min="1" oninput="this.value = Math.abs(this.value); AutoUpdateOptions()">
+    <label for="colour" class="label" title="Whether fancy effects should be enabled. Will increase performance if disabled.">Effects:</label>
+    <input id="colour" class="checkbox" type="checkbox" checked="true" oninput="AutoUpdateOptions()">
+    <label for="process" class="label" title="Whether the generation process should be shown or not. Generation will be much faster if disabled.">Show Process:</label>
+    <input id="process" class="checkbox" type="checkbox" checked="true" oninput="AutoUpdateOptions()">
+
+    <div id="canWrapper">
+      <canvas id="mCan" width="60" height="60"></canvas>
+      <canvas id="cCan" width="60" height="60"></canvas>
+    </div>
+    <div id="timer">Time Elapsed: 0.000s</div>
+
+    <button id="genbtn" onclick="Generate()">Generate</button>
+    <label for="row" class="label">Rows:</label>
+    <input id="row" type="number" value="30" min="5">
+    <label for="col" class="label">Columns:</label>
+    <input id="col" type="number" value="30" min="5">
+    <br>
+    <label for="genType">Generation type:</label>
+    <select id="genType">
+      <option value="kruskals">Randomized Kruskal's Algorithm Maze</option>
+      <option value="prims">Randomized Prim's Algorithm Maze</option>
+      <option value="dfs">Depth First Search Maze</option>
+      <option value="rd">Recursive Division Maze</option>
+      <option value="binaryTree">Binary Tree Maze</option>
+      <option value="caveCA">Cellular automata - Cave</option>
+    </select>
+    <br>
+    <div id="desc">
+      This is a collection of various randomly generated mazes or other
+      interesting shapes. Pick a generation type and press Generate to start!
+    </div>
+    <a href="https://medium.com/analytics-vidhya/maze-generations-algorithms-and-visualizations-9f5e88a3ae37">This article helped me a lot.</a>
+  </body>
+</html>

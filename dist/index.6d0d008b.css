@@ -23,7 +23,6 @@ canvas {
     position: absolute;
     left: 0;
     top: 0;
-    image-rendering: crisp-edges;
     /* border: solid 2px red; */
 }
 #mCan {
@@ -37,3 +36,4 @@ canvas {
 input {
     width: 3em;
 }
+/*# sourceMappingURL=index.6d0d008b.css.map */
